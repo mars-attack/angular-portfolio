@@ -11,8 +11,13 @@ let mongoose = require('mongoose');
 let passport = require('passport');
 let register = require('../models/business-contact');
 
+//enable jwt
+let jwt = require('jsonwebtoken');
+let DB = require('../config/db');
+
 // create the user model instance
 let userModel = require('../models/user');
+const { UpgradeRequired } = require('http-errors');
 let User = userModel.Model; // alias
 
 
@@ -82,10 +87,35 @@ module.exports.processLoginPage = (req, res, next) => {
         console.log(err);
         return next(err);
       }
-      else
+
+      // creating a payload object
+      const payload =
       {
-        res.redirect('/business-contacts') // login success
+        id: user._id,
+        displayName: user.displayName,
+        username: user.username,
+        email: user.email
       }
+
+      const authToken = jwt.sign(payload, DB.Secret,{
+        expiresIn: 604800 // expired in 1 week
+      })
+
+      // TODO getting ready to convert to API
+      // res.json({
+      //   success: true, 
+      //   msg: 'User Logged in Successfully!',
+      //   user:
+      //   {
+      //     id: user._id,
+      //     displayName: user.displayName,
+      //     username: user.username,
+      //     email: user.email
+      //   },
+      //   token: authToken
+      // });
+
+      res.redirect('/business-contacts') // login success
     });
 
   })(req, res, next);
@@ -137,6 +167,13 @@ module.exports.processRegisterPage = (req, res, next) => {
     else //no error exists and registration success
     {
       //redirect and authenticate user
+
+      // TODO getting ready to convert to API
+      // res.json({
+      //   success: true,
+      //   msg: 'User Registered Successfully!'
+      // });
+
       return passport.authenticate('local')(req, res, () => {
         res.redirect('/business-contacts')
       });
