@@ -8,9 +8,6 @@ Date: Oct 25th 2020
 let express = require('express');
 let router = express.Router();
 
-//enable jwt
-let jwt = require('jsonwebtoken');
-
 // create a reference to Business Contact schema
 let BusinessContact = require('../models/business-contact');
 
